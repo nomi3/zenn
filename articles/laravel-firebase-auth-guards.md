@@ -1,6 +1,6 @@
 ---
 title: "Laravel で クロージャリクエストガードを使ってFirebase認証をする"
-emoji: "🔥" # https://emojipedia.org/
+emoji: "✨" # https://emojipedia.org/
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["Laravel", "Firebase"]
 published: true
