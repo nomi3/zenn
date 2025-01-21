@@ -2,7 +2,7 @@
 title: "TerraformでGoogle Cloud Storageを含んだリソース群の削除に失敗した場合の対処法"
 emoji: "⛏️"
 type: "tech"
-topics: ["Terraform", "Google Cloud", "Cloud Storage"]
+topics: ["Terraform", "GoogleCloud", "CloudStorage"]
 published: true
 ---
 
