@@ -26,7 +26,7 @@ $$
 射への作用:
 
 $$
-U(h: (X \to C) \to (Y \to C)) = h
+U(h: (f: X \to C) \to (g: Y \to C)) = h
 $$
 
 ただし、 $f$ と $h$ はそれぞれスライス圏 $\text{C}/C$ の対象と射である。
@@ -44,7 +44,7 @@ $$
 射への作用:
 
 $$
-F(h: (X \to C) \to (Y \to C)) = (h, \text{id}_C)
+F(h: (f: X \to C) \to (g: Y \to C)) = (h, \text{id}_C)
 $$
 
 ただし、 $f$ と $h$ はそれぞれスライス圏 $\text{C}/C$ の対象と射であり、 $g: Y \to C$ は $f = g \circ h$ を満たす。
