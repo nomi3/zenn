@@ -49,6 +49,34 @@ $$
 
 ただし、 $f$ と $h$ はそれぞれスライス圏 $\text{C}/C$ の対象と射であり、 $g: Y \to C$ は $f = g \circ h$ を満たす。
 
+## 関手 $\text{dom}: \text{C}^\to \to \text{C}$ の定義
+
+関手 $\text{dom}: \text{C}^\to \to \text{C}$ は、圏 $\text{C}^\to$ における射の可換正方形の始域部分に作用する。
+
+$$
+\begin{array}{ccc}
+A & \xrightarrow{g_1} & A' \\
+\downarrow{f} & & \downarrow{f'} \\
+B & \xrightarrow{g_2} & B'
+\end{array}
+$$
+
+即ち、上記の可換正方形において、 $\text{C}^\to$ の射 $g = (g_1, g_2)$ 内の $g_1$ に関する部分を取り出す関手である。
+
+よって、対象について:
+
+$$
+\text{dom}(f: A \to B) = A
+$$
+
+射について:
+
+$$
+\text{dom}((g_1, g_2)) = g_1
+$$
+
+となる。
+
 ## $\text{dom} \circ F = U$ の確認
 
 対象について:
