@@ -33,10 +33,10 @@ $$
 
 $P$ は射影的対象であるから、$e \circ \bar{h} = g \circ r$ となる射 $\bar{h}: P \to E$ が存在する。
 
-ここで、引き込み $i: A \to P$ を使い、 $h: A \to E$ を
+ここで、引き込み $i: A \to P$ を使い、 $\bar{g}: A \to E$ を
 
 $$
-h = \bar{h} \circ i
+\bar{g} = \bar{h} \circ i
 $$
 
 とする。
@@ -44,7 +44,7 @@ $$
 このとき、
 
 $$
-e \circ h = e \circ (\bar{h} \circ i) = (e \circ \bar{h}) \circ i = (g \circ r) \circ i = g \circ (r \circ i) = g \circ 1_A = g
+e \circ \bar{g} = e \circ (\bar{h} \circ i) = (e \circ \bar{h}) \circ i = (g \circ r) \circ i = g \circ (r \circ i) = g \circ 1_A = g
 $$
 
 よって、$A$ は射影的である。
