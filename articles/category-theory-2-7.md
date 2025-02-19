@@ -13,37 +13,41 @@ published: true
 
 # 2章-7
 
-集合の圏 $\text{Sets}$ において、対象$P$が射影的であるとは、任意の全射 $e: E \to X$ と射 $f: P \to X$ に対して、 $e \circ \bar{f} = f$ となる射 $\bar{f}: P \to E$ が存在することである。
+ある対象 $P$ が射影的であるとする。
 
-任意の全射 $e: E \to X$ と写像 $f: P \to X$ を考える。任意の $p \in P$ に対して、$f(p) \in X$ となる。$e$ が全射であるから、各 $f(p)$ に対してその前像
+射影的対象の定義より、任意のエピ射 $e: E \to X$ と射 $f: P \to X$ に対して、$e \circ \bar{f} = f$ となる射 $\bar{f}: P \to E$ が存在する。
 
-$$
-e^{-1}(f(p)) = \{ y \in E \mid e(y) = f(p) \}
-$$
+ある対象 $A$ が $P$ の引き込みであるとする。
 
-は空でない。
+つまり、$r \circ i = 1_A$ となる射 $i: A \to P$ と射 $r: P \to A$ が存在する。
 
-選択公理により、各 $p \in P$ から $e^{-1}(f(p))$ の元をひとつ選ぶ選択関数 $\bar{f}: P \to E$ を定めることができる。
+ここで、任意のエピ射 $e: E \to X$ と射 $g: A \to X$ を考える。
 
-すなわち、任意の $p \in P$ について、$\bar{f}(p) \in e^{-1}(f(p))$ として、$\bar{f}: P \to E$ を定める。
-
-このとき、任意の $p \in P$ に対して、
+さらに
 
 $$
-e(\bar{f}(p)) = f(p)
+g \circ r: P \to X
 $$
 
-となるので、
+を考える。
+
+$P$ は射影的対象であるから、$e \circ \bar{h} = g \circ r$ となる射 $\bar{h}: P \to E$ が存在する。
+
+ここで、引き込み $i: A \to P$ を使い、 $h: A \to E$ を
 
 $$
-e \circ \bar{f} = f
+h = \bar{h} \circ i
 $$
 
-である。
+とする。
 
-以上より、任意の全射 $e: E \to X$ と写像 $f: P \to X$ に対して、$\bar{f}: P \to E$ が存在するので、$P$ は射影的であることが示される。
+このとき、
 
-また、$P$ は任意の集合であったため、すべての集合は射影的であることが示される。
+$$
+e \circ h = e \circ (\bar{h} \circ i) = (e \circ \bar{h}) \circ i = (g \circ r) \circ i = g \circ (r \circ i) = g \circ 1_A = g
+$$
+
+よって、$A$ は射影的である。
 
 # 参考文献
 [Category Theory (Oxford Logic Guides)](https://amzn.to/4awkkSJ)
