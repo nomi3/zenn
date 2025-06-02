@@ -18,7 +18,7 @@ published: true
 位相空間 $X$ において、 以下のように定義される特殊化が前順序であることを示す。
 
 $$
-x \leq y \iff y \in U \implies x \in U \ \text{for every open set } U.
+x \leq y \iff x \in U \implies y \in U \ \text{for every open set } U.
 $$
 
 が成り立つことを示す。
@@ -31,13 +31,13 @@ $$
 
 ### 2. 推移律の証明
 
-$x \leq y$ は $y \in U \implies x \in U$ である。
+$x \leq y$ かつ $y \leq z$ を仮定する。
 
-$y \leq z$ は $z \in U \implies y \in U$ である。
+$x \leq y$ は $x \in U \implies y \in U$ であり、 $y \leq z$ は $y \in U \implies z \in U$ である。
 
-よって $x \leq z$ は $z \in U \implies x \in U$ である。
+よって、 $x \in U \implies z \in U$ が成り立つ。
 
-よって $x \leq z$ が成り立つ。
+よって、 $x \leq z$ が成り立つ。
 
 ## 位相空間 $X$ が $T_0$ の場合、半順序であることの証明
 
@@ -63,7 +63,7 @@ $X$ が $T_1$ の場合、 $x \neq y$ ならば
 
 $x \in U$ かつ $y \notin U$ を満たす開集合 $U$ と $y \in V$ かつ $x \notin V$ を満たす開集合 $V$ が存在する。
 
-$x \leq y$ は $y \in U \implies x \in U$ が成り立つ必要があるが、 $x \neq y$ の場合、 $y \in U$ かつ $x \notin U$ となる開集合 $U$ が存在するため、条件を満たさない。
+$x \leq y$ は $x \in U \implies y \in U$ が成り立つ必要があるが、 $x \neq y$ の場合、 $x \in U$ かつ $y \notin U$ となる開集合 $U$ が存在するため、条件を満たさない。
 
 よって $x \leq y$ が成り立つのは $x = y$ の場合に限る。
 
