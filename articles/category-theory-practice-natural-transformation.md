@@ -36,6 +36,8 @@ function fmapOptional<A, B>(f: (a: A) => B): (fa: Optional<A>) => Optional<B> {
 ```typescript
 const PASS_MARK = 60;
 const f = (point: number) => point >= PASS_MARK;
+
+const score: Optional<number> = { hasValue: true, value: 82 };
 ```
 
 # 練習問題
@@ -46,7 +48,11 @@ const f = (point: number) => point >= PASS_MARK;
 type ApiResult<A> =
   | { status: "ok"; data: A }
   | { status: "empty" };
+```
 
+<!-- check:skip -->
+
+```typescript
 function toApiResult<A>(fa: Optional<A>): ApiResult<A> {
   // ここを実装
 }
@@ -73,6 +79,8 @@ function toApiResult<A>(fa: Optional<A>): ApiResult<A> {
 「`fmap` を先にやるか、変換を先にやるかで結果が変わらない」を確かめます。
 
 素朴に書くと次の2つを比べたくなりますが、
+
+<!-- check:skip -->
 
 ```typescript
 toApiResult(fmapOptional(f)(score));

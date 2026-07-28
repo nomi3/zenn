@@ -8,6 +8,7 @@
     "preview": "zenn preview --port 8000",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "check:articles": "node scripts/check-articles.mjs",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -30,6 +31,7 @@
   "devDependencies": {
     "husky": "^9.1.7",
     "lint-staged": "^17.2.0",
-    "prettier": "^3.9.6"
+    "prettier": "^3.9.6",
+    "typescript": "^7.0.2"
   }
 }

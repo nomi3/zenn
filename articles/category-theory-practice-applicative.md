@@ -47,6 +47,8 @@ function apOptional<A, B>(fab: Optional<(a: A) => B>, fa: Optional<A>): Optional
 
 引数の並びは `fmapOptional` と揃えてあります。どちらも関数が先、箱が後です。違いは第1引数だけで、`fmapOptional` は素の関数を取るのに対し、`apOptional` はそれが箱に入っています。
 
+<!-- check:skip -->
+
 ```typescript
 fmapOptional: (f: (a: A) => B, fa: Optional<A>) => Optional<B>;
 apOptional: (fab: Optional<(a: A) => B>, fa: Optional<A>) => Optional<B>;
@@ -66,7 +68,11 @@ const attendance: Optional<number> = { hasValue: true, value: 24 }; // 出席日
 判定に使いたいのは「点数が60点以上、かつ出席日数が20日以上」という**2引数**の条件です。これをカリー化して `fmapOptional` に渡すと、こうなります。
 
 ```typescript
-const canAdvance = (s: number) => (a: number) => s >= 60 && a >= 20;
+const PASS_MARK = 60;
+const MIN_ATTENDANCE = 20;
+
+const canAdvance = (s: number) => (a: number) =>
+  s >= PASS_MARK && a >= MIN_ATTENDANCE;
 
 const boxedFn = fmapOptional(canAdvance, score);
 // boxedFn の型: Optional<(a: number) => boolean>
@@ -75,6 +81,8 @@ const boxedFn = fmapOptional(canAdvance, score);
 **関数が箱に入った状態**になりました。あとは出席日数を食わせるだけなのですが、`fmapOptional` にはもう渡せません。第1引数は**素の関数**でなければならないのに、こちらが持っているのは**箱に入った関数**だからです。
 
 つまり `fmap` は「箱の外にある関数」を「箱の中の値」に適用する道具なので、関数自体が箱に入った瞬間に手が届かなくなります。ここを埋めるのが `ap` です。
+
+<!-- check:skip -->
 
 ```typescript
 fmapOptional(boxedFn, attendance); // 型が合わない
@@ -89,10 +97,9 @@ apOptional(boxedFn, attendance); // 通る
 
 **制約: 中身を `if` で直接分解しないこと。** `pureOptional` と `apOptional` だけを使います。
 
-```typescript
-const PASS_MARK = 60;
-const MIN_ATTENDANCE = 20;
+<!-- check:skip -->
 
+```typescript
 // TODO: pureOptional と apOptional だけを使って書く
 function judge(
   score: Optional<number>,
@@ -107,9 +114,6 @@ function judge(
 ## 解答
 
 ```typescript
-const canAdvance = (s: number) => (a: number) =>
-  s >= PASS_MARK && a >= MIN_ATTENDANCE;
-
 function judge(
   score: Optional<number>,
   attendance: Optional<number>,
@@ -276,6 +280,8 @@ apOptional(pureOptional(half), x); // { hasValue: true, value: 41 }
 今回うまくいったのは、**点数と出席日数が互いに独立している**からです。出席日数を取ってくるのに点数の値は要りませんし、逆も同じです。だから「両方を箱から出して関数に渡す」という形に収まりました。
 
 これが崩れるのは、後の値が前の値に依存する場合です。例えば「本試験が不合格だった生徒にだけ追試の点数がある」という状況を考えると、追試の点数を取りに行くかどうかが本試験の**値**によって決まります。
+
+<!-- check:skip -->
 
 ```typescript
 // 本試験の点数によって、次に何を取りに行くかが変わる
