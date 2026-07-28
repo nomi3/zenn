@@ -11,9 +11,6 @@
     "check:articles": "node scripts/check-articles.mjs",
     "prepare": "husky"
   },
-  "lint-staged": {
-    "*.{md,json,yml,yaml}": "prettier --write"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nomi3/zenn.git"
