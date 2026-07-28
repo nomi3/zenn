@@ -32,6 +32,8 @@ EOF
 CodeBuild から ECR にイメージを PUSH するときには、ECR への PUSH 権限を付与する必要があったのですが、その権限を付与していませんでした。
 今回は CDK を使っていたので、以下のように権限を付与するコードを追加する必要がありました。
 
+<!-- check:skip -->
+
 ```typescript
 const ecrRepo = ecr.Repository.fromRepositoryName(/* ECRの情報 */);
 

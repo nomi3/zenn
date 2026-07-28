@@ -67,6 +67,8 @@ const f = (point: number) => point >= PASS_MARK;
 
 一覧表示のために、`ApiResult<A>` を配列 `A[]` に変換する $\sigma$ を書きます。値があれば要素1つの配列、なければ空配列とします。
 
+<!-- check:skip -->
+
 ```typescript
 // TODO: A について何も知らないまま書く
 function toArray<A>(fa: ApiResult<A>): A[] {
@@ -104,6 +106,8 @@ $$
 # 練習2: 自然変換をつなぐ
 
 $\tau : \mathrm{Optional} \Rightarrow \mathrm{ApiResult}$ と $\sigma : \mathrm{ApiResult} \Rightarrow \mathrm{Array}$ が揃ったので、つないで $\mathrm{Optional} \Rightarrow \mathrm{Array}$ を作ります。これが自然変換になっているかを確かめます。
+
+<!-- check:skip -->
 
 ```typescript
 // TODO: toApiResult と toArray をつなぐ
@@ -187,6 +191,14 @@ function idOptional<A>(fa: Optional<A>): Optional<A> {
 ```
 
 自然性は $\mathrm{id}_{F} \circ F(f) = F(f) \circ \mathrm{id}_{F}$ で、どちらも $F(f)$ そのものなので成り立ちます。
+
+```typescript
+for (const score of scores) {
+  const lhs = idOptional(fmapOptional(f)(score));
+  const rhs = fmapOptional(f)(idOptional(score));
+  console.log(JSON.stringify(score).padEnd(28), same(lhs, rhs));
+}
+```
 
 ```
 {"hasValue":true,"value":82} true

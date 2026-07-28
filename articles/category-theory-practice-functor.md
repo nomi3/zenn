@@ -37,7 +37,8 @@ function fmapOptional<A, B>(f: (a: A) => B): (fa: Optional<A>) => Optional<B> {
 `fmapOptional` は関数を受け取って関数を返します。箱は引数に取りません。
 
 ```typescript
-const f = (point: number) => point >= 60; // number -> boolean
+const PASS_MARK = 60;
+const f = (point: number) => point >= PASS_MARK; // number -> boolean
 const lifted = fmapOptional(f); // Optional<number> -> Optional<boolean>
 ```
 
@@ -51,9 +52,9 @@ const lifted = fmapOptional(f); // Optional<number> -> Optional<boolean>
 
 **制約: 中身の `Optional` を自分で分解しないこと。** つまり `if (score.hasValue)` を書かず、`fmapOptional` だけで書きます。
 
-```typescript
-const PASS_MARK = 60;
+<!-- check:skip -->
 
+```typescript
 // TODO: fmapOptional だけを使って書く
 const isPassing: (score: Optional<number>) => Optional<boolean> = /* ここを実装 */;
 ```
