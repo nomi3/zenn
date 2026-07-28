@@ -21,8 +21,9 @@ type Optional<A> =
   | { hasValue: true; value: A }
   | { hasValue: false };
 
-function fmapOptional<A, B>(f: (a: A) => B, fa: Optional<A>): Optional<B> {
-  return fa.hasValue ? { hasValue: true, value: f(fa.value) } : { hasValue: false };
+function fmapOptional<A, B>(f: (a: A) => B): (fa: Optional<A>) => Optional<B> {
+  return (fa) =>
+    fa.hasValue ? { hasValue: true, value: f(fa.value) } : { hasValue: false };
 }
 ```
 
@@ -33,6 +34,15 @@ function fmapOptional<A, B>(f: (a: A) => B, fa: Optional<A>): Optional<B> {
 
 `Optional` が前者、`fmapOptional` が後者です。この2つが揃って(そして後述の法則を満たして)関手になります。
 
+`fmapOptional` の形に注目してください。**関数を受け取って、関数を返します。** 箱を引数に取っていません。
+
+```typescript
+const f = (point: number) => point >= 60; // number -> boolean
+const lifted = fmapOptional(f); // Optional<number> -> Optional<boolean>
+```
+
+`f` は `fmapOptional` に渡したあとも `number -> boolean` のままです。`Optional` を相手にする関数に化けるわけではありません。`Optional<number> -> Optional<boolean>` になっているのは、`f` を**持ち上げた結果**である `lifted` のほうです。射の対応とは、この「持ち上げ」そのものを指します。
+
 この記事では、`Optional<number>` を「ある生徒の試験の点数」とします。欠席で未受験なら `{ hasValue: false }` です。
 
 # 練習問題
@@ -42,22 +52,18 @@ function fmapOptional<A, B>(f: (a: A) => B, fa: Optional<A>): Optional<B> {
 **制約: 中身の `Optional` を自分で分解しないこと。** つまり `if (score.hasValue)` を書かず、`fmapOptional` だけで書きます。
 
 ```typescript
-const score: Optional<number> = { hasValue: true, value: 82 };
+const PASS_MARK = 60;
 
 // TODO: fmapOptional だけを使って書く
-function isPassing(score: Optional<number>): Optional<boolean> {
-  // ここを実装
-}
+const isPassing: (score: Optional<number>) => Optional<boolean> = /* ここを実装 */;
 ```
 
 ## 解答
 
 ```typescript
-const PASS_MARK = 60;
-
-function isPassing(score: Optional<number>): Optional<boolean> {
-  return fmapOptional((point) => point >= PASS_MARK, score);
-}
+const isPassing: (score: Optional<number>) => Optional<boolean> = fmapOptional(
+  (point) => point >= PASS_MARK,
+);
 ```
 
 書くべきは `(point: number) => boolean` という**ただの関数**だけで、`hasValue` の有無をどう引き回すかは `fmapOptional` が引き受けます。
@@ -82,12 +88,12 @@ isPassing({ hasValue: false }); // { hasValue: false }
 
 「対象の対応」と「射の対応」があれば何でも関手になるわけではありません。射の対応が満たすべき法則が2つあります。
 
-関手 $F$ について、
+| 法則         | 圏論の書き方                            | コードでの書き方                                        |
+| ------------ | --------------------------------------- | ------------------------------------------------------- |
+| 恒等射の保存 | $F(\mathrm{id}_A) = \mathrm{id}_{F(A)}$ | `fmapOptional(id) = id`                                 |
+| 合成の保存   | $F(g \circ f) = F(g) \circ F(f)$        | `fmapOptional(g∘f) = fmapOptional(g) ∘ fmapOptional(f)` |
 
-| 法則         | 圏論の書き方                            | コードでの書き方                     |
-| ------------ | --------------------------------------- | ------------------------------------ |
-| 恒等射の保存 | $F(\mathrm{id}_A) = \mathrm{id}_{F(A)}$ | `fmap(id, x) = x`                    |
-| 合成の保存   | $F(g \circ f) = F(g) \circ F(f)$        | `fmap(g∘f, x) = fmap(g, fmap(f, x))` |
+どちらも**関数どうしの等式**です。`fmapOptional` が関数を返すので、両辺をそのまま並べられます。
 
 言葉にすると、恒等射の保存は「何もしない関数を持ち上げても、やはり何もしない」、合成の保存は「関数を合成してから持ち上げても、持ち上げてから合成しても同じ」です。
 
@@ -95,14 +101,21 @@ isPassing({ hasValue: false }); // { hasValue: false }
 
 ## 恒等射の保存を確かめる
 
-`fmapOptional(id, x) = x` を、`x` の2通りで確かめます。
+$F(\mathrm{id}_A) = \mathrm{id}_{F(A)}$ には**恒等射が2つ、別の階層で**出てきます。
 
-| `x`                            | `fmapOptional` の挙動 | 結果                           |
-| ------------------------------ | --------------------- | ------------------------------ |
-| `{ hasValue: true, value: a }` | `id(a)` を適用        | `{ hasValue: true, value: a }` |
-| `{ hasValue: false }`          | そのまま返す          | `{ hasValue: false }`          |
+- $\mathrm{id}_A$ は `A -> A`。`fmapOptional` に渡すほう
+- $\mathrm{id}_{F(A)}$ は `Optional<A> -> Optional<A>`。等式の右辺
 
-どちらも `x` そのものに戻ります。中身がある場合は `id` が何もしないから、無い場合はそもそも関数が呼ばれないからです。
+つまりこの法則は、**「中身のレベルで何もしない関数」を持ち上げると「箱のレベルで何もしない関数」になる**、と言っています。持ち上げによって階層が1つ上がる、というのがポイントです。
+
+両辺は同じ型の関数なので、`Optional<A>` の2通りの形に適用して比べます。
+
+| 適用する値                     | 左辺 `fmapOptional(id)`                             | 右辺 `id`                      |
+| ------------------------------ | --------------------------------------------------- | ------------------------------ |
+| `{ hasValue: true, value: a }` | 中身に `id` が効いて `{ hasValue: true, value: a }` | `{ hasValue: true, value: a }` |
+| `{ hasValue: false }`          | 関数が呼ばれず `{ hasValue: false }`                | `{ hasValue: false }`          |
+
+中身がある場合は `id` が何もしないから、無い場合はそもそも関数が呼ばれないから、どちらも一致します。
 
 ## 合成の保存を確かめる
 
@@ -113,7 +126,7 @@ const toPass = (n: number) => n >= PASS_MARK; // number -> boolean
 const toLabel = (b: boolean) => (b ? "合格" : "不合格"); // boolean -> string
 ```
 
-`{ hasValue: true, value: a }` のとき、合成してから持ち上げると `{ hasValue: true, value: toLabel(toPass(a)) }` になります。持ち上げてから合成する場合も、`fmapOptional(toPass, x)` が `{ hasValue: true, value: toPass(a) }` を返し、そこに `toLabel` を持ち上げて適用するので同じものになります。
+`{ hasValue: true, value: a }` に適用すると、左辺 `fmapOptional(toLabel ∘ toPass)` は中身を一度で変換して `{ hasValue: true, value: toLabel(toPass(a)) }` を返します。右辺 `fmapOptional(toLabel) ∘ fmapOptional(toPass)` は、`{ hasValue: true, value: toPass(a) }` を経由してから同じものに行き着きます。
 
 `{ hasValue: false }` のときは、どちらの経路でも関数が一度も呼ばれずに `{ hasValue: false }` が素通りするだけです。
 
@@ -123,9 +136,9 @@ const toLabel = (b: boolean) => (b ? "合格" : "不合格"); // boolean -> stri
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 const id = <A,>(a: A) => a;
 const compose =
-  <A, B, C>(q: (b: B) => C, p: (a: A) => B) =>
+  <A, B, C>(g: (b: B) => C, f: (a: A) => B) =>
   (a: A): C =>
-    q(p(a));
+    g(f(a));
 
 const xs: Optional<number>[] = [
   { hasValue: true, value: 82 },
@@ -134,19 +147,19 @@ const xs: Optional<number>[] = [
 ];
 
 for (const x of xs) {
-  const idLaw = same(fmapOptional(id, x), x);
+  const idLaw = same(fmapOptional(id)(x), id(x));
   const compLaw = same(
-    fmapOptional(compose(toLabel, toPass), x),
-    fmapOptional(toLabel, fmapOptional(toPass, x)),
+    fmapOptional(compose(toLabel, toPass))(x),
+    compose(fmapOptional(toLabel), fmapOptional(toPass))(x),
   );
-  console.log(JSON.stringify(x).padEnd(32), "恒等射:", idLaw, " 合成:", compLaw);
+  console.log(JSON.stringify(x).padEnd(30), "恒等射:", idLaw, " 合成:", compLaw);
 }
 ```
 
 ```
-{"hasValue":true,"value":82}     恒等射: true  合成: true
-{"hasValue":true,"value":45}     恒等射: true  合成: true
-{"hasValue":false}               恒等射: true  合成: true
+{"hasValue":true,"value":82}   恒等射: true  合成: true
+{"hasValue":true,"value":45}   恒等射: true  合成: true
+{"hasValue":false}             恒等射: true  合成: true
 ```
 
 `Optional` は取りうる形が2通りしかないので、法則の確認も総当たりで済んでしまいます。
@@ -154,6 +167,7 @@ for (const x of xs) {
 # まとめ
 
 - 関手は「対象の対応」と「射の対応」の2つでできている。`Optional` と `fmapOptional` がその組
-- `fmap` は「素の関数」を「文脈付きの関数」に持ち上げる。中身を自分で分解しないと、値の変換と文脈の管理が自然に分離する
+- 射の対応は「関数を受け取って関数を返す」持ち上げ。渡した関数自体は素のままで、持ち上げた結果が箱を相手にする
+- 中身を自分で分解しないと、値の変換と文脈の管理が自然に分離する
 - 射の対応は恒等射と合成を保存しなければならない。これがあるから「箱の形は変わらない」と言い切れる
 - `Optional` のように形が有限個なら、法則はケース分けで手で確かめられる

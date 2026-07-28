@@ -21,12 +21,15 @@ type Optional<A> =
   | { hasValue: true; value: A }
   | { hasValue: false };
 
-function fmapOptional<A, B>(f: (a: A) => B, fa: Optional<A>): Optional<B> {
-  return fa.hasValue ? { hasValue: true, value: f(fa.value) } : { hasValue: false };
+function fmapOptional<A, B>(f: (a: A) => B): (fa: Optional<A>) => Optional<B> {
+  return (fa) =>
+    fa.hasValue ? { hasValue: true, value: f(fa.value) } : { hasValue: false };
 }
 ```
 
 `Optional` は型 `A` を型 `Optional<A>` に対応させる「対象の対応」で、`fmapOptional` は関数 `A -> B` を関数 `Optional<A> -> Optional<B>` に対応させる「射の対応」です。この2つが揃って関手になります。
+
+`fmapOptional` は関数を受け取って**関数を返す**形にしてあります。`fmapOptional(f)` そのものが `Optional<A> -> Optional<B>` という射なので、後で図式の矢印としてそのまま使えます。
 
 この記事では、`Optional<number>` を「ある生徒の試験の点数」とします。欠席で未受験なら `{ hasValue: false }` です。合否判定にはこの関数を使います。
 
@@ -72,17 +75,18 @@ function toApiResult<A>(fa: Optional<A>): ApiResult<A> {
 ここで一つ引っかかりポイントがあります。素朴に書くと以下の2つを比べたくなりますが、
 
 ```typescript
-toApiResult(fmapOptional(f, score));
-fmapOptional(f, toApiResult(score)); // 型が合わない
+toApiResult(fmapOptional(f)(score));
+fmapOptional(f)(toApiResult(score)); // 型が合わない
 ```
 
-後者はコンパイルが通りません。`toApiResult(score)` はもう `Optional` ではなく `ApiResult` なので、`fmapOptional` には渡せないからです。
+後者はコンパイルが通りません。`fmapOptional(f)` は `Optional<number>` を受け取る関数なのに、`toApiResult(score)` はもう `ApiResult` だからです。
 
 ここで、`ApiResult` も関手だと確認したことが効いてきます。関手なら自分の `fmap` を持っているはずなので、それを書き下します。
 
 ```typescript
-function fmapApiResult<A, B>(f: (a: A) => B, fa: ApiResult<A>): ApiResult<B> {
-  return fa.status === "ok" ? { status: "ok", data: f(fa.data) } : { status: "empty" };
+function fmapApiResult<A, B>(f: (a: A) => B): (fa: ApiResult<A>) => ApiResult<B> {
+  return (fa) =>
+    fa.status === "ok" ? { status: "ok", data: f(fa.data) } : { status: "empty" };
 }
 ```
 
@@ -91,27 +95,27 @@ function fmapApiResult<A, B>(f: (a: A) => B, fa: ApiResult<A>): ApiResult<B> {
 これで比べるべき2つの経路が揃いました。
 
 ```typescript
-toApiResult(fmapOptional(f, score)); // fmap してから変換
-fmapApiResult(f, toApiResult(score)); // 変換してから fmap
+toApiResult(fmapOptional(f)(score)); // fmap してから変換
+fmapApiResult(f)(toApiResult(score)); // 変換してから fmap
 ```
 
-図式にするとこうなります。
+図式にするとこうなります。4つの辺がすべて、`fmapOptional(f)` のような**そのまま呼べる関数**になっています。
 
 $$
 \begin{CD}
-\mathrm{Optional}\langle A \rangle @>{\mathrm{fmapOptional}(f,\,-)}>> \mathrm{Optional}\langle B \rangle \\
+\mathrm{Optional}\langle A \rangle @>{\mathrm{fmapOptional}(f)}>> \mathrm{Optional}\langle B \rangle \\
 @V{\mathrm{toApiResult}_A}VV @VV{\mathrm{toApiResult}_B}V \\
-\mathrm{ApiResult}\langle A \rangle @>>{\mathrm{fmapApiResult}(f,\,-)}> \mathrm{ApiResult}\langle B \rangle
+\mathrm{ApiResult}\langle A \rangle @>>{\mathrm{fmapApiResult}(f)}> \mathrm{ApiResult}\langle B \rangle
 \end{CD}
 $$
 
 自然性とは、この四角形が可換であること、すなわち
 
 $$
-\mathrm{toApiResult}_B \circ \mathrm{fmapOptional}(f,\,-) \;=\; \mathrm{fmapApiResult}(f,\,-) \circ \mathrm{toApiResult}_A
+\mathrm{toApiResult}_B \circ \mathrm{fmapOptional}(f) \;=\; \mathrm{fmapApiResult}(f) \circ \mathrm{toApiResult}_A
 $$
 
-です。
+です。両辺とも `Optional<A> -> ApiResult<B>` という同じ型の関数で、その等式を主張しています。
 
 ## 場合分けで確かめる
 
@@ -143,8 +147,8 @@ const scores: Optional<number>[] = [
 ];
 
 for (const score of scores) {
-  const a = toApiResult(fmapOptional(f, score)); // fmap してから変換
-  const b = fmapApiResult(f, toApiResult(score)); // 変換してから fmap
+  const a = toApiResult(fmapOptional(f)(score)); // fmap してから変換
+  const b = fmapApiResult(f)(toApiResult(score)); // 変換してから fmap
   console.log(JSON.stringify(a) === JSON.stringify(b), a);
 }
 ```
@@ -160,4 +164,5 @@ true { status: 'empty' }
 - 自然変換は関手から関手への変換。変換先が関手であることを確認して初めて、そう呼べる
 - 自然変換の条件は図式の可換性。型変数 `A` を覗かずに書けることが、その手がかりになる
 - 可換図式の確認は、それぞれの関手が持つ自分の `fmap` を使って行う
+- `fmap` を「関数を受け取って関数を返す」形にしておくと、図式の矢印をそのままコードで書ける
 - `Optional` のように形が有限個なら、可換性はケース分けで手で確かめられる
