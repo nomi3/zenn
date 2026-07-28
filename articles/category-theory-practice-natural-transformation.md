@@ -29,7 +29,7 @@ function fmapOptional<A, B>(f: (a: A) => B): (fa: Optional<A>) => Optional<B> {
 
 `Optional` は型 `A` を型 `Optional<A>` に対応させる「対象の対応」で、`fmapOptional` は関数 `A -> B` を関数 `Optional<A> -> Optional<B>` に対応させる「射の対応」です。この2つが揃って関手になります。
 
-`fmapOptional` は関数を受け取って**関数を返す**形にしてあります。`fmapOptional(f)` そのものが `Optional<A> -> Optional<B>` という射なので、後で図式の矢印としてそのまま使えます。
+`fmapOptional` は関数を受け取って関数を返す形にしてあります。`fmapOptional(f)` そのものが `Optional<A> -> Optional<B>` という射なので、後で図式の矢印としてそのまま使えます。
 
 この記事では、`Optional<number>` を「ある生徒の試験の点数」とします。欠席で未受験なら `{ hasValue: false }` です。合否判定にはこの関数を使います。
 
@@ -54,7 +54,7 @@ function toApiResult<A>(fa: Optional<A>): ApiResult<A> {
 
 この `ApiResult` も、`Optional` と同じく関手です。型 `A` を `ApiResult<A>` に対応させ、関数 `A -> B` を `ApiResult<A> -> ApiResult<B>` に対応させる `fmap` を持ちます(実装は後で書きます)。
 
-関手が2つ揃ったので、その間の変換を考えられます。自然変換とは**関手から関手への変換**のことなので、`ApiResult` が関手であることを確認して初めて、`toApiResult` を自然変換と呼べるようになります。
+関手が2つ揃ったので、その間の変換を考えられます。自然変換とは関手から関手への変換のことなので、`ApiResult` が関手であることを確認して初めて、`toApiResult` を自然変換と呼べます。
 
 ## 解答
 
@@ -64,15 +64,15 @@ function toApiResult<A>(fa: Optional<A>): ApiResult<A> {
 }
 ```
 
-ポイントは、**`A` について何も知らないまま書ける**ことです。`toApiResult` の実装の中に `A` 固有の処理は一切出てきません。点数(`number`)を運んでいようが合否(`boolean`)を運んでいようが、コードは同じです。
+`A` について何も知らないまま書けています。`toApiResult` の実装の中に `A` 固有の処理は一切出てきません。点数(`number`)を運んでいようが合否(`boolean`)を運んでいようが、コードは同じです。
 
 `toApiResult` を $\tau$ と書くと、型変数 `A` ごとに射 $\tau_A : \mathrm{Optional}\langle A \rangle \to \mathrm{ApiResult}\langle A \rangle$ が定まってはいるものの、その定義は `A` に依存せず、箱の形だけを見て決まっています。
 
 # 可換図式を確認する
 
-ここからが本題です。「`fmap` を先にやるか、変換を先にやるかで結果が変わらない」を確かめます。
+「`fmap` を先にやるか、変換を先にやるかで結果が変わらない」を確かめます。
 
-ここで一つ引っかかりポイントがあります。素朴に書くと以下の2つを比べたくなりますが、
+素朴に書くと次の2つを比べたくなりますが、
 
 ```typescript
 toApiResult(fmapOptional(f)(score));
@@ -81,7 +81,7 @@ fmapOptional(f)(toApiResult(score)); // 型が合わない
 
 後者はコンパイルが通りません。`fmapOptional(f)` は `Optional<number>` を受け取る関数なのに、`toApiResult(score)` はもう `ApiResult` だからです。
 
-ここで、`ApiResult` も関手だと確認したことが効いてきます。関手なら自分の `fmap` を持っているはずなので、それを書き下します。
+`ApiResult` も関手なので、自分の `fmap` を持っています。それを書き下します。
 
 ```typescript
 function fmapApiResult<A, B>(f: (a: A) => B): (fa: ApiResult<A>) => ApiResult<B> {
@@ -90,7 +90,7 @@ function fmapApiResult<A, B>(f: (a: A) => B): (fa: ApiResult<A>) => ApiResult<B>
 }
 ```
 
-自然変換の可換性は「同じ `fmap` を使う」という話ではなく、**2つの関手がそれぞれ持つ `fmap` が $\tau$ を通して整合する**という話です。なので比較の相手には、`fmapOptional` ではなくこちらを使います。
+自然変換の可換性は「同じ `fmap` を使う」という話ではなく、2つの関手がそれぞれ持つ `fmap` が $\tau$ を通して整合するという話です。比較の相手には `fmapOptional` ではなくこちらを使います。
 
 これで比べるべき2つの経路が揃いました。
 
@@ -99,7 +99,7 @@ toApiResult(fmapOptional(f)(score)); // fmap してから変換
 fmapApiResult(f)(toApiResult(score)); // 変換してから fmap
 ```
 
-図式にするとこうなります。4つの辺がすべて、`fmapOptional(f)` のような**そのまま呼べる関数**になっています。
+図式にするとこうなります。4つの辺がすべて、`fmapOptional(f)` のようなそのまま呼べる関数になっています。
 
 $$
 \begin{CD}
@@ -119,7 +119,7 @@ $$
 
 ## 場合分けで確かめる
 
-`Optional<A>` の値は2通りしかないので、素直に両方試せば図式が閉じるか確認できます。$f : A \to B$ とします。
+`Optional<A>` の値は2通りしかないので、両方試せば図式が閉じるか確認できます。$f : A \to B$ とします。
 
 **(1) `{ hasValue: true, value: a }` のとき**
 
@@ -165,4 +165,4 @@ true { status: 'empty' }
 - 自然変換の条件は図式の可換性。型変数 `A` を覗かずに書けることが、その手がかりになる
 - 可換図式の確認は、それぞれの関手が持つ自分の `fmap` を使って行う
 - `fmap` を「関数を受け取って関数を返す」形にしておくと、図式の矢印をそのままコードで書ける
-- `Optional` のように形が有限個なら、可換性はケース分けで手で確かめられる
+- `Optional` のように形が有限個なら、可換性はケース分けで確かめられる
