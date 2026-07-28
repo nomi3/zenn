@@ -3,7 +3,7 @@ title: "圏論の練習問題を作って解いてみる(関手圏)"
 emoji: "🧩"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["圏論", "typescript", "関数型プログラミング"]
-published: false
+published: true
 ---
 
 関手を対象、自然変換を射とする「関手圏」を、TypeScriptを使った練習問題で確認します。題材は学校の成績照会です。
